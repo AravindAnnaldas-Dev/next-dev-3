@@ -1,27 +1,42 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  height: 100vh;
+  font-family: "Poppins", system-ui;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #212121;
+  color: #ffffff;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+.custom_scroll_text::-webkit-scrollbar {
+  height: 0px;
+}
+
+.custom_scroll_list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom_scroll_list::-webkit-scrollbar-thumb {
+  background: #ffffff40;
+  border-radius: 6px;
+}
+
+input.custom_checked:checked + div {
+  text-decoration: line-through;
 }
