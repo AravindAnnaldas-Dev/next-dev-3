@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { IoIosClose } from "react-icons/io";
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { IoIosClose } from 'react-icons/io';
+import { FaCheck } from 'react-icons/fa6';
 
 type Titem = {
   id: number;
@@ -14,19 +15,20 @@ type Titem = {
 const CrudWithForm = () => {
   const [jsonData, setJsonData] = useState<Titem[]>([]);
   const [myId, setMyId] = useState(jsonData.length + 1);
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState('');
   const [checked, setChecked] = useState(false);
+  const [editClicked, setEditClicked] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // data fetching
   const dataFetching = async () => {
     try {
-      const response = await axios.get("https://dummyjson.com/todos");
+      const response = await axios.get('https://dummyjson.com/todos');
       const data = response.data;
       setJsonData(data.todos);
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error('Error fetching data:', error);
       setLoading(false);
     }
   };
@@ -42,26 +44,27 @@ const CrudWithForm = () => {
 
   // common class
   const commonClass =
-    "min-w-[160px] min-h-[50px] border-white px-6 py-2 flex items-center justify-center text-nowrap";
+    'min-w-[160px] min-h-[50px] border-white px-6 py-2 flex items-center justify-center text-nowrap';
   const headerData = [
-    "Id",
-    "Todo",
-    "Completed",
-    "UserId",
-    "Edit Todo",
-    "Delete Todo",
+    'Id',
+    'Todo',
+    'Completed',
+    'UserId',
+    'Edit Todo',
+    'Delete Todo',
   ];
 
   // form open
-  const body = document.querySelector("body");
-  const taskFormCtn = document.getElementById("task-form-ctn");
+  const body = document.querySelector('body');
+  const taskFormCtn = document.getElementById('task-form-ctn');
   const onAddTaskClick = () => {
-    taskFormCtn?.classList.add("form-open");
-    body?.classList.add("overflow-hidden");
+    taskFormCtn?.classList.add('form-open');
+    body?.classList.add('overflow-hidden');
   };
   const onCloseFormClick = () => {
-    taskFormCtn?.classList.remove("form-open");
-    body?.classList.remove("overflow-hidden");
+    taskFormCtn?.classList.remove('form-open');
+    body?.classList.remove('overflow-hidden');
+    setEditClicked(false);
   };
 
   // form input
@@ -74,21 +77,58 @@ const CrudWithForm = () => {
     setChecked(e.target.checked);
   };
 
+  // edit clicked
+  const onEditHandler = (editId: number) => {
+    jsonData.map((item) => {
+      if (item.id === editId) {
+        onAddTaskClick();
+        setInputValue(item.todo);
+        setMyId(item.id);
+        setChecked(item.completed);
+        setEditClicked(true);
+      }
+    });
+  };
+
+  // edit done
+  const onEditDoneHandler = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+
+    setJsonData((prev) =>
+      prev.map((item) =>
+        item.id === myId
+          ? { id: myId, todo: inputValue, completed: checked, userId: myId }
+          : item
+      )
+    );
+
+    setInputValue('');
+    setChecked(false);
+    setEditClicked(false);
+
+    onCloseFormClick();
+  };
+
+  // delete click
+  const onDeleteHandler = (deleteId: number) => {
+    setJsonData((prev) => prev.filter((item) => item.id !== deleteId));
+  };
+
   // form sumbmit
   const onFormsubmitClick = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
 
-    if (inputValue === "") {
-      alert("Please enter some task");
+    if (inputValue === '') {
+      alert('Please enter some task');
       return;
     }
 
-    setJsonData([
-      ...jsonData,
+    setJsonData((prev) => [
+      ...prev,
       { id: myId, todo: inputValue, completed: checked, userId: myId },
     ]);
 
-    setInputValue("");
+    setInputValue('');
     setChecked(false);
 
     onCloseFormClick();
@@ -99,7 +139,7 @@ const CrudWithForm = () => {
       <div className="w-[100%] h-[fit-content] flex justify-center pt-16">
         <div className="h-[fit-content] border-[1px] border-white relative">
           <button
-            style={{ bottom: "calc(100% + 8px)" }}
+            style={{ bottom: 'calc(100% + 8px)' }}
             className="absolute right-0 flex items-center justify-center py-2 px-6 rounded-md bg-green-600"
             onClick={onAddTaskClick}
           >
@@ -110,7 +150,7 @@ const CrudWithForm = () => {
               <div
                 key={index}
                 className={`${commonClass} ${
-                  index === 1 ? "min-w-[240px]" : ""
+                  index === 1 ? 'min-w-[240px]' : ''
                 } last:border-none`}
               >
                 {item}
@@ -128,7 +168,7 @@ const CrudWithForm = () => {
                 >
                   <div className={commonClass}>{item.id}</div>
                   <div
-                    style={{ justifyContent: "flex-start" }}
+                    style={{ justifyContent: 'flex-start' }}
                     className={`custom_scroll_text ${commonClass} min-w-[240px] max-w-[240px] overflow-x-auto`}
                   >
                     {item.todo}
@@ -139,6 +179,7 @@ const CrudWithForm = () => {
                     <button
                       type="button"
                       className="w-[100%] h-[100%] rounded-md bg-sky-600 border-none py-1"
+                      onClick={() => onEditHandler(item.id)}
                     >
                       Edit
                     </button>
@@ -147,6 +188,7 @@ const CrudWithForm = () => {
                     <button
                       type="button"
                       className="w-[100%] h-[100%] rounded-md bg-red-600 border-none py-1"
+                      onClick={() => onDeleteHandler(item.id)}
                     >
                       Delete
                     </button>
@@ -224,17 +266,30 @@ const CrudWithForm = () => {
                 placeholder="Enter Task"
                 checked={checked}
                 onChange={(e) => onChangeHandlerChecked(e)}
-                required
               />
             </div>
             <div className="flex items-center justify-end">
-              <button
-                className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                type="submit"
-                onClick={(e) => onFormsubmitClick(e)}
-              >
-                Create
-              </button>
+              {editClicked ? (
+                <>
+                  <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-6 rounded focus:outline-none focus:shadow-outline"
+                    type="submit"
+                    onClick={onEditDoneHandler}
+                  >
+                    <FaCheck className="w-6 h-5" />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    type="submit"
+                    onClick={(e) => onFormsubmitClick(e)}
+                  >
+                    Create
+                  </button>
+                </>
+              )}
             </div>
           </form>
         </div>
